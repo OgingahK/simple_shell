@@ -9,40 +9,50 @@
 /**
  * main - simple shell project
  *
- * execute_command - executes the arguments passed to the child process
+ * commandlineargs - executes the arguments passed to the child process
  *
- * @command: string of arguments passed to it
+ * @commandline: string of arguments passed to it
  *
  * Return: 0
  */
 
-void execute_commands(char *command)
+void commandlineargs(char *commandline)
 {
-	char *args[2];
-	args[0] = command;
-	args[1] = NULL;
+	int argcount = 0;
+	char *argvector[11];
+	char *separator = " ";
+	char *token;
 
-	execvp(command, args);
-	perror("execvp");
+	token = strtok(commandline, separator);
+	while (token != NULL && argcount < 10)
+	{
+		argvector[argcount++] = strdup(token);
+		token = strtok(NULL, separator);
+	}
+
+	if (argcount == 0)
+	{
+		perror("No command, No Argument");
+		exit(EXIT_FAILURE);
+	}
+
+	argvector[argcount] = NULL;
+
+	execvp(argvector[0], argvector);
+	perror("excevp Failed");
 	exit(EXIT_FAILURE);
 }
 
 int main(void)
 {
-	char *lineptr;
+	char *lineptr = NULL;
 	size_t buf_size = 0;
 	ssize_t nread;
 	pid_t pid;
-	bool is_pipe = false;
 	char *sign = "$ ";
 
-	while (1 && !is_pipe)
+	while (1)
 	{
-		if (isatty(STDIN_FILENO) == 0)
-		{
-			is_pipe = true;
-		}
-
 		write(STDOUT_FILENO, sign, 2);
 
 		nread = getline(&lineptr, &buf_size, stdin);
@@ -58,7 +68,7 @@ int main(void)
 		pid = fork();
 		if (pid == 0)
 		{
-			execute_commands(lineptr);
+			commandlineargs(lineptr);
 		}
 
 		if (pid == -1)
