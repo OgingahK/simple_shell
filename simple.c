@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <errno.h>
+#include "shell.h"
 
 /**
  * execute_command - executes the arguments passed to the child process
